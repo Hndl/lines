@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<title>Code Example: Evolve!  -- L Systems -- </title>
+	
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
+	<script type="text/javascript">
+		
+		const MARGIN = 50;
+		const UPPERLIMIT = 10;
+		
+		var MAXPOINTS = 0;
+		var startAt = 0;
+		var COL = 0;
+		var increment = 0.1;
+		var factor=-1;
+		
+
+		function setup() {
+    
+ 			canvas = createCanvas(window.innerWidth, window.innerHeight);
+			frameRate(20);
+			colorMode(HSB);
+			frameRate(5);
+ 		}
+
+
+ 		function mouseClicked() {
+  			MAXPOINTS = map(mouseX,0,width,0,200);
+		}
+ 		
+
+		function getHoz_XY( i,offSet,newY, func ) {
+			let x = map( i, 0, MAXPOINTS, 0, (width/2)+offSet);
+			let y = newY;
+			func(x,y);
+		}
+
+		function getVer_XY( i, offSet, newX, func ) {
+			let y = map( i, 0, MAXPOINTS, 0, -(height/2)+offSet);
+			let x = newX;
+			func(x,y);
+		}
+
+		
+ 		
+		/**
+		 *
+		 */
+		function draw() {
+			
+			background(255);
+		
+			let maxpoints = MAXPOINTS;
+			
+			for ( w=0 ; w<= width ; w+=width/2){
+				for ( h=0 ; h<= height ; h+=height/2){
+					push();
+					translate(w, h);
+					strokeWeight(0.1);
+					for (let m = -1 ; m <= 2 ; m+=2){
+						for (let mm = -1 ; mm <= 2 ; mm+=2){
+							let c = maxpoints;
+							for ( let i = startAt ; i < maxpoints ; i+=increment){
+								
+								getHoz_XY( (i*m),0,0, (x0,y0)=> {
+									getVer_XY( (c*mm),0,0, (x1,y1)=> {	
+										stroke(COL,100,100);
+										line( x0,y0, x1,y1);
+										COL ++;	
+										if (COL > 255){
+											COL = 0;
+										}
+										
+									});
+								});
+								c-=increment;			
+							}
+						}
+						
+			
+					}
+					pop();
+				}
+			}
+
+			if  ( MAXPOINTS > UPPERLIMIT ) {
+				factor = -1;
+			}
+			if  ( MAXPOINTS < 0 ) {
+				factor = 1;
+			}
+
+			MAXPOINTS += (increment*factor);
+			
+			//console.log(COL);
+		}
+
+		
+	
+	</script>
+<body>
+
+</body>
+</html>
