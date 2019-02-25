@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Insert title here</title>
+	</head>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.js"></script>
+	
+	<script type="text/javascript">
+	
+		var canvas;
+		var w = 512;
+		function presetup() {
+			
+		}
+		function setup(){
+			let g = new Graph('Sequence',{});
+			for ( let i = 1 ; i < 3 ; i++){
+				g.add( i, "from:"+(i-1)+"->"+i,{});
+			}
+			canvas = createCanvas(window.innerWidth-100, window.innerHeight -100 );
+			//r = (512-20)/2;
+			r = width/2;
+			colorMode(HSB);
+		}
+		
+		const startX = 50;
+		const startY = 50;
+		var c = 0;
+		var a = 0;
+		var aa = 0;
+		var totalPoints = 200;
+		var factor = 0;
+		var factorb = 999999;
+		const increment = 0.001;
+		var r;
+		
+		function mouseDragged() {
+			totalPoints = map(mouseX, 0,width, 10, 1000);
+		}
+		
+		function getXY( idx, rad, func ) {
+			
+			let theta = map(idx % totalPoints,0, totalPoints,0,TWO_PI);
+			theta += PI; // flip 
+			let x =  rad * cos(theta);
+			let y = rad * sin(theta);
+			
+			func(x,y, theta);
+		}
+		
+		function draw(){
+			
+			background(0);
+			
+			push()
+			
+			stroke(255);
+			translate(width/2,height/2);
+			noFill();
+			ellipse(0,0,r*2,r*2);
+			strokeWeight(1);
+		
+			noFill();
+			for ( let i = 0; i < totalPoints ; i ++ ) {
+				getXY(i,r, (x0,y0, a0) => {
+					let answer=i*factor;
+					getXY(answer,r, (x1,y1,a1) => {
+						let col = factor * 100;
+						
+						stroke(x0,y0,col);
+						line(x0,y0,x1,y1);												
+					})
+				})
+			}
+			factor += increment;	
+			
+			pop();
+			//stroke(100,100,100);
+			//text(`factor:${factor}`);
+		
+		}
+		
+	
+	
+	</script>
+<body>
+
+</body>
+</html>
