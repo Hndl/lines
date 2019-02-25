@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Insert title here</title>
+	</head>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.js"></script>
+	<script src="nodeAndVerts.js"></script>
+	<script src="ordergraph.js"></script>
+	<script type="text/javascript">
+	
+		var canvas;
+		var r;
+		var penA = [];
+		var penB = [];
+		var penC = [];
+		var penD = [];
+		var penspeed_1 = 0.01;
+		var penspeed_2 = 0.05;
+		var maxP = 500;
+		var showCircles = false;
+				
+		function setup(){
+			canvas = createCanvas(window.innerWidth, window.innerHeight  );
+			r = (width/3)-100;		
+		}
+				
+		function getXY( idx, rad, func ) {
+			
+			let theta = map(idx,0, TWO_PI,0,TWO_PI);
+			//theta += PI; // flip 
+			let x =  rad * cos(theta);
+			let y = rad * sin(theta);
+			
+			func(x,y, theta);
+		}
+		
+		function mouseDragged(){
+			if ( penA.length < maxP)
+				return;
+			
+			maxP = floor(map ( mouseY, 0, height, 20,2000));		
+		}
+		
+		function mouseClicked(){			
+			showCircles = !showCircles;
+		}
+		
+		function mouseWheel(event) {
+			if ( event.delta < 0 ) {
+				penspeed_1 -= 0.0001;
+				penspeed_2 += 0.0001;
+			} else {
+				penspeed_1 += 0.0001;
+				penspeed_2 -= 0.0001;
+			}			  
+		}
+		
+		var generatePattern = (function (increment,incrementb, parentCircleRadius,newCircleRadius, points, show) { // start func [A]
+			var a = 0;
+			var aa = 0
+			return (function (increment,incrementb, parentCircleRadius,newCircleRadius, points,show) { // start func [B]
+				getXY( a, newCircleRadius, (x,y) => {	
+					if (show)
+						ellipse(x,y,newCircleRadius*2,newCircleRadius*2);
+					
+					getXY( aa, newCircleRadius, (x1,y1) => {		
+						let nnCircleRadius=newCircleRadius/4;
+						if (show)
+							ellipse((x+x1),(y+y1),nnCircleRadius*2,nnCircleRadius*2);
+						points.push({
+							'x':x1+x,
+							'y':y1+y
+						});
+					});
+				});
+				a += increment; 
+				aa += incrementb;
+				return a
+			});// end func[B]
+		})();// endfunc [B]
+		
+		function renderPattern( points, maxPoints) {
+			beginShape();
+			for ( let i = 0 ; i<points.length;i++){
+				coord = points[i];
+				vertex(coord.x, coord.y);
+			}
+			endShape();
+			
+			while( points.length>maxPoints)	{	
+				points.shift();
+			}
+		}
+		
+		function draw(){
+			
+			background(0);
+			
+			
+			push()
+				translate(width/2,height/2);
+				textSize(20);
+				fill(0, 102, 153);
+				text(` outer:${penspeed_1} \n inner:${penspeed_2} \n storage:${penA.length}/${maxP} [adjust:${penA.length>=maxP}] \n show circles:${showCircles}`,-width/2,0);	
+			
+				stroke(255);
+				strokeWeight(1);				
+				noFill();
+			
+				let originalR = r;
+				let newR = r/2;
+			
+				if ( showCircles)
+					ellipse(0,0,r*2,r*2);
+							
+				generatePattern(penspeed_1,penspeed_2,originalR,newR,penA,showCircles); // invocation of closure is fine.
+				generatePattern(0,0,originalR,newR+random(5,10),penB,showCircles); 
+				generatePattern(0,0,originalR,newR+random(15,20),penC,showCircles); 
+				generatePattern(0,0,originalR,newR+random(25,30),penD,showCircles); 
+				stroke(0,255,0);
+				strokeWeight(2);
+				
+				renderPattern(penA, maxP);
+				stroke(0,0,255);
+				renderPattern(penB, maxP);
+				stroke(255,0,0);
+				renderPattern(penC, maxP);
+				stroke(255,255,255);
+				renderPattern(penD, maxP);				
+											
+			pop();
+			
+			
+			
+			
+		
+			
+		}
+		
+	
+	
+	</script>
+<body>
+
+</body>
+</html>
